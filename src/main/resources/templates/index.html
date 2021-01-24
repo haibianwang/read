@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org/">
+<script type="text/javascript"  th:src="@{https://cdn.jsdelivr.net/npm/jquery@3.2/dist/jquery.min.js}"></script>
+<head>
+    <meta charset="UTF-8">
+    <title>提取抖音视频和音乐下载地址</title>
+</head>
+<body>
+<label>说明：如需要下载提取后的视频或者音乐,请把链接复制到浏览器打开下载</label>
+<div><div><label style="text-align: center">抖音地址:</label></div><textarea style="width: 200px;height: 200px"  id="url" name="url"></textarea></div><button onclick="get()">提取水印视频下载地址</button>&nbsp;&nbsp;&nbsp;<button onclick="getmusic()">提取背景音乐下载地址</button>&nbsp;&nbsp;&nbsp;<button onclick="getw()">提取无水印视频下载地址</button>
+<div>
+    <a href="" id="s">水印视频下载地址</a><br>
+    <a href="" id="w">无水印视频下载地址,只需把水印视频地址中的playwm替换成play就行,可以手动替换,也可以点击上面按钮自动替换</a><br>
+    <a href="" id="m">背景音乐下载地址</a>
+</div>
+</body>
+</html>
+<script>
+    var r=/^http:\/\/[A-Za-z0-9]+\.[A-Za-z0-9]+[\/=\?%\-&_~`@[\]\':+!]*([^<>\"\"])*$/;
+    var rs=/^https:\/\/[A-Za-z0-9]+\.[A-Za-z0-9]+[\/=\?%\-&_~`@[\]\':+!]*([^<>\"\"])*$/;
+    var reg = /[\u4e00-\u9fa5|，！#【】]/g;
+    function get() {
+           if(validate()){
+               var u=$("#url").val();
+               var rurl=u.replace(reg, "").trim();
+               $.ajax({
+
+                   url:'/get',
+                   data:{url:rurl,type:0},
+                   success:function (result) {
+                       //$("#s").attr("href",result);
+                        $("#s").text(result);
+                   }
+               })
+           }
+    }
+    function getmusic() {
+        if(validate()){
+            var u=$("#url").val();
+            var rurl=u.replace(reg, "").trim();
+            $.ajax({
+
+                url:'/get',
+                data:{url:rurl,type:1},
+                success:function (result) {
+                    //$("#s").attr("href",result);
+                    $("#m").text(result);
+                }
+            })
+        }
+    }
+    function getw() {
+        if(validate()){
+            var u=$("#url").val();
+            var rurl=u.replace(reg, "").trim();
+            $.ajax({
+
+                url:'/get',
+                data:{url:rurl,type:0,m:0},
+                success:function (result) {
+                    //$("#s").attr("href",result);
+                    $("#w").text(result);
+                }
+            })
+        }
+    }
+
+    function validate() {
+           var url=$("#url").val();
+           if (url){
+
+              // url=url.trim().replace("#","");
+               var furl=url.replace(reg, "").trim();
+               if(r.test(furl) == true||rs.test(furl)==true)
+               {
+
+                   return true;
+               }else {
+                   alert("请填写有效的链接地址");
+                   return false;
+               }
+
+
+           }else {
+               alert("请输入地址")
+               return false;
+           }
+
+    }
+</script>
