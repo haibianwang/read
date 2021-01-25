@@ -16,17 +16,22 @@
 </body>
 </html>
 <script>
-    var r=/^http:\/\/[A-Za-z0-9]+\.[A-Za-z0-9]+[\/=\?%\-&_~`@[\]\':+!]*([^<>\"\"])*$/;
-    var rs=/^https:\/\/[A-Za-z0-9]+\.[A-Za-z0-9]+[\/=\?%\-&_~`@[\]\':+!]*([^<>\"\"])*$/;
+    var r=/https?:\/\/[A-Za-z0-9]+\.[A-Za-z0-9]+[\/=\?%\-&_~`@[\]\':+!]*([^<>\"\"])*$/;
+    //var regs = new RegExp();
+   // regs.compile('/https?:\/\/[\w-.%#?\/\\\]',"i")
+    //var ru=/https?:\/\/[\w-.%#?\/\\\]/
+    //var rs=/^https:\/\/[A-Za-z0-9]+\.[A-Za-z0-9]+[\/=\?%\-&_~`@[\]\':+!]*([^<>\"\"])*$/;
     var reg = /[\u4e00-\u9fa5|，！#【】]/g;
+    var newreg=/((https?|ftp|file):\/\/|)[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]/;
     function get() {
            if(validate()){
                var u=$("#url").val();
-               var rurl=u.replace(reg, "").trim();
+               //var rurl=u.replace(reg, "").trim();
+               var nu=u.match(newreg)[0];
                $.ajax({
 
                    url:'/get',
-                   data:{url:rurl,type:0},
+                   data:{url:u,type:0},
                    success:function (result) {
                        //$("#s").attr("href",result);
                         $("#s").text(result);
@@ -70,8 +75,10 @@
            if (url){
 
               // url=url.trim().replace("#","");
-               var furl=url.replace(reg, "").trim();
-               if(r.test(furl) == true||rs.test(furl)==true)
+               //var furl=url.replace(reg, "").trim();
+               var k=newreg.exec(url);
+               var l=url.match(newreg);
+               if(r.exec(url)!=null)
                {
 
                    return true;
