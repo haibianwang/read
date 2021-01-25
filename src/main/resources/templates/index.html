@@ -9,9 +9,15 @@
 <label>说明：如需要下载提取后的视频或者音乐,请把链接复制到浏览器打开下载</label>
 <div><div><label style="text-align: center">抖音地址:</label></div><textarea style="width: 200px;height: 200px"  id="url" name="url"></textarea></div><button onclick="get()">提取水印视频下载地址</button>&nbsp;&nbsp;&nbsp;<button onclick="getmusic()">提取背景音乐下载地址</button>&nbsp;&nbsp;&nbsp;<button onclick="getw()">提取无水印视频下载地址</button>
 <div>
-    <a href="" id="s">水印视频下载地址</a><br>
+  <!--  <a href="" id="s">水印视频下载地址</a><br>
     <a href="" id="w">无水印视频下载地址,只需把水印视频地址中的playwm替换成play就行,可以手动替换,也可以点击上面按钮自动替换</a><br>
-    <a href="" id="m">背景音乐下载地址</a>
+    <a href="" id="m">背景音乐下载地址</a>-->
+    <p>水印视频下载地址:</p>
+    <label id="s"></label>
+    <p  >无水印视频下载地址,只需把水印视频地址中的playwm替换成play就行,可以手动替换,也可以点击上面按钮自动替换:</p>
+    <label id="w"></label>
+    <p>背景音乐下载地址:</p>
+    <label id="m"></label>
 </div>
 </body>
 </html>
@@ -23,6 +29,7 @@
     //var rs=/^https:\/\/[A-Za-z0-9]+\.[A-Za-z0-9]+[\/=\?%\-&_~`@[\]\':+!]*([^<>\"\"])*$/;
     var reg = /[\u4e00-\u9fa5|，！#【】]/g;
     var newreg=/((https?|ftp|file):\/\/|)[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]/;
+
     function get() {
            if(validate()){
                var u=$("#url").val();
@@ -33,11 +40,32 @@
                    url:'/get',
                    data:{url:u,type:0},
                    success:function (result) {
+                       console.log(result.url)
                        //$("#s").attr("href",result);
-                        $("#s").text(result);
+                       var html="&nbsp;&nbsp;&nbsp;<a href='/getvideo?url="+result.url+"&desc="+result.desc+"'>下载</a>"
+                        $("#s").text(result.url);
+                        $("#s").append(html);
+                        //$("#s").bind("click",function () {
+//download(result);
+                        //})
                    }
                })
            }
+    }
+
+    function download() {
+        var u=$("#s").text();
+        alert(u);
+        $.ajax({
+
+            url:'/getvideo',
+            data:{url:u},
+            success:function (result) {
+                //$("#s").attr("href",result);
+                $("#m").text(result.url);
+            }
+        })
+
     }
     function getmusic() {
         if(validate()){
@@ -49,7 +77,9 @@
                 data:{url:rurl,type:1},
                 success:function (result) {
                     //$("#s").attr("href",result);
-                    $("#m").text(result);
+                    var html="&nbsp;&nbsp;&nbsp;<a href='/getvideo?url="+result.url+"&desc="+result.desc+"'>下载</a>"
+                    $("#m").text(result.url);
+                    $("#m").append(html);
                 }
             })
         }
@@ -64,7 +94,9 @@
                 data:{url:rurl,type:0,m:0},
                 success:function (result) {
                     //$("#s").attr("href",result);
-                    $("#w").text(result);
+                    var html="&nbsp;&nbsp;&nbsp;<a href='/getvideo?url="+result.url+"&desc="+result.desc+"'>下载</a>"
+                    $("#w").text(result.url);
+                    $("#w").append(html);
                 }
             })
         }
