@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 @Controller
 public class VideoController {
@@ -65,86 +66,96 @@ public class VideoController {
     @RequestMapping("/getvideo")
     @ResponseBody
     public void getvideo(String url,String desc,HttpServletResponse res,String type) throws IOException {
-        String pre="";
-        if(type!=null){
-            pre=".mp3";
-        }else {
-            pre=".mp4";
+        //if (url!=null&&url.isEmpty())
+        //Pattern pattern = Pattern.compile("//(//d{3}//)//s//d{3}-//d{4}");
+        //String regx="https?:\\/\\/[A-Za-z0-9]+\\.[A-Za-z0-9]+[\\/=\\?%\\-&_~`@[\\]\\':+!]*([^<>\\\"\\\"])*$";
+        //boolean a=url.matches(regx);
+        if (desc==null||desc.isEmpty()){
+            desc="dy";
         }
-        res.addHeader("Content-Disposition", "attachment;fileName=" + java.net.URLEncoder.encode(desc+pre, "UTF-8"));
-        //res.setContentType("application/force-download");// 设置强制下载不打开
-        //res.addHeader("Content-Disposition", "attachment;fileName=" + java.net.URLEncoder.encode(desc+pre, "UTF-8"));
-        //String msg="";
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder()
-                .url(url)
-                .get()
-                .build();
-        Response response = null;
-        try {
-            response = client.newCall(request).execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        //创建接收文件的流
-       //File file = new File( "./a.mp4");
-        //OutputStream outputStream = new FileOutputStream(file);
-
-        OutputStream outputStream = null;
-        if (type!=null&&type.equals("t")){
-
-            //创建接收文件的流
-            File file = new File(desc+".mp4");
-            outputStream = new FileOutputStream(file);
-            outputStream.write(response.body().bytes());
-            outputStream.flush();
-            outputStream.close();
-            //File source = new File(desc+pre);
-            File target = new File(desc+pre);
-            AudioAttributes audio = new AudioAttributes();
-            audio.setCodec("libmp3lame");
-            audio.setBitRate(new Integer(128000));
-            audio.setChannels(new Integer(2));
-            audio.setSamplingRate(new Integer(44100));
-            EncodingAttributes attrs = new EncodingAttributes();
-            attrs.setFormat("mp3");
-            attrs.setAudioAttributes(audio);
-            Encoder encoder = new Encoder();
-            try {
-                encoder.encode(file, target, attrs);
-                outputStream=res.getOutputStream();
-                byte[] buff = new byte[1024];
-                BufferedInputStream bis = null;
-                // 读取filename
-                bis = new BufferedInputStream(new FileInputStream(target));
-                int i = bis.read(buff);
-
-                while (i != -1) {
-                    outputStream.write(buff, 0, buff.length);
-                    outputStream.flush();
-                    i = bis.read(buff);
-                }
-            } catch (EncoderException e) {
-                e.printStackTrace();
+        String regx="((https?):\\/\\/|)[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]";
+        if (url!=null&&url.matches(regx)) {
+            String pre = "";
+            if (type != null) {
+                pre = ".mp3";
+            } else {
+                pre = ".mp4";
             }
-
-        }else {
+            res.addHeader("Content-Disposition", "attachment;fileName=" + java.net.URLEncoder.encode(desc + pre, "UTF-8"));
+            //res.setContentType("application/force-download");// 设置强制下载不打开
+            //res.addHeader("Content-Disposition", "attachment;fileName=" + java.net.URLEncoder.encode(desc+pre, "UTF-8"));
+            //String msg="";
+            OkHttpClient client = new OkHttpClient();
+            Request request = new Request.Builder()
+                    .url(url)
+                    .get()
+                    .build();
+            Response response = null;
             try {
-
-                res.setContentType("application/force-download");// 设置强制下载不打开
-                //res.addHeader("Content-Disposition", "attachment;fileName=" + java.net.URLEncoder.encode(desc+pre, "UTF-8"));
-                outputStream = res.getOutputStream();
+                response = client.newCall(request).execute();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            //将responseBody截取并写入到指定文件路径下
-            outputStream.write(response.body().bytes());
-            outputStream.flush();
-            outputStream.close();
+            //创建接收文件的流
+            //File file = new File( "./a.mp4");
+            //OutputStream outputStream = new FileOutputStream(file);
+
+            OutputStream outputStream = null;
+            if (type != null && type.equals("t")) {
+
+                //创建接收文件的流
+                File file = new File(desc + ".mp4");
+                outputStream = new FileOutputStream(file);
+                outputStream.write(response.body().bytes());
+                outputStream.flush();
+                outputStream.close();
+                //File source = new File(desc+pre);
+                File target = new File(desc + pre);
+                AudioAttributes audio = new AudioAttributes();
+                audio.setCodec("libmp3lame");
+                audio.setBitRate(new Integer(128000));
+                audio.setChannels(new Integer(2));
+                audio.setSamplingRate(new Integer(44100));
+                EncodingAttributes attrs = new EncodingAttributes();
+                attrs.setFormat("mp3");
+                attrs.setAudioAttributes(audio);
+                Encoder encoder = new Encoder();
+                try {
+                    encoder.encode(file, target, attrs);
+                    outputStream = res.getOutputStream();
+                    byte[] buff = new byte[1024];
+                    BufferedInputStream bis = null;
+                    // 读取filename
+                    bis = new BufferedInputStream(new FileInputStream(target));
+                    int i = bis.read(buff);
+
+                    while (i != -1) {
+                        outputStream.write(buff, 0, buff.length);
+                        outputStream.flush();
+                        i = bis.read(buff);
+                    }
+                } catch (EncoderException e) {
+                    e.printStackTrace();
+                }
+
+            } else {
+                try {
+
+                    res.setContentType("application/force-download");// 设置强制下载不打开
+                    //res.addHeader("Content-Disposition", "attachment;fileName=" + java.net.URLEncoder.encode(desc+pre, "UTF-8"));
+                    outputStream = res.getOutputStream();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                //将responseBody截取并写入到指定文件路径下
+                outputStream.write(response.body().bytes());
+                outputStream.flush();
+                outputStream.close();
+            }
+            //msg="success";
+            //return msg;
+            //return "index";
         }
-        //msg="success";
-        //return msg;
-        //return "index";
     }
     @RequestMapping("/")
     public String index(){
