@@ -19,7 +19,7 @@ public class VideoController {
         if (url!=null&&!url.isEmpty()) {
 
 
-            String real = Util.getrealUrl(url);
+            String real = Util.getrealUrl(Util.decodeHttpUrl(url));
             String id=Util.getID(real);
             if (id!=null&&!id.isEmpty()){
                 String vurl=Util.getvideo(id);
