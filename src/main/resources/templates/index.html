@@ -74,12 +74,15 @@
             $.ajax({
 
                 url:'/get',
-                data:{url:rurl,type:1},
+                data:{url:u,type:1},
                 success:function (result) {
                     //$("#s").attr("href",result);
                     var html="&nbsp;&nbsp;&nbsp;<a href='/getvideo?url="+result.url+"&desc="+result.desc+"&type=m'>下载</a>"
                     $("#m").text(result.url);
-                    $("#m").append(html);
+                    if(result.url!=""){
+                        $("#m").append(html);
+                    }
+
                 }
             })
         }

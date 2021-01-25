@@ -39,10 +39,11 @@ public class VideoController {
                 List<Map<String,Object>> maprest = (List<Map<String, Object>>) json.get("item_list");
                 //List<Object> b=(List<Object>)json.get("item_list");
                 Map<String,Object> re = maprest.get(0);
-                String desc=re.get("desc").toString();
-                r.put("desc",desc);
+                Map<String, Object> video = (Map<String, Object>) re.get("video");
+                String vid=video.get("vid").toString().trim();
+                r.put("desc",vid);
                 if (type==0) {
-                    Map<String, Object> video = (Map<String, Object>) re.get("video");
+
                     Map<String, Object> play_addr = (Map<String, Object>) video.get("play_addr");
                     urls = ((List<String>) play_addr.get("url_list")).get(0);
                     if (m!=null&&m.equals("0")){
@@ -51,7 +52,10 @@ public class VideoController {
                 }else if (type==1){
                     Map<String, Object> music = (Map<String, Object>) re.get("music");
                     Map<String, Object> play_url = (Map<String, Object>) music.get("play_url");
-                    urls = ((List<String>) play_url.get("url_list")).get(0);
+                    List<String> object=(List<String>)play_url.get("url_list");
+                    if (object.size()>0) {
+                        urls = ((List<String>) play_url.get("url_list")).get(0);
+                    }
 
                 }
                 r.put("url",urls);
