@@ -2,6 +2,8 @@ package com.video.read.util;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
@@ -10,13 +12,17 @@ import java.util.Map;
 
 public class Util {
 
-
+private static final Logger LOGGER= LoggerFactory.getLogger(Util.class);
 
 
     public static String decodeHttpUrl(String url) {
         int start = url.indexOf("http");
         int end = url.lastIndexOf("/");
-        String decodeurl = url.substring(start, end);
+        String decodeurl ="";
+        if (start!=-1&&end!=-1){
+        decodeurl = url.substring(start, end);
+        }
+
         return decodeurl;
     }
     public static String getvideo(String id) {
@@ -26,12 +32,14 @@ public class Util {
         try {
            res  = c.ignoreContentType(true).timeout(10000).execute().body();
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            LOGGER.error(e.getStackTrace().toString());
         }
         return res;
     }
     public static Connection getcon(String url){
-        return  Jsoup.connect(url).userAgent("Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1").ignoreContentType(true);
+        //return  Jsoup.connect(url).userAgent("Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1").ignoreContentType(true);
+        return  Jsoup.connect(url).userAgent("Mozilla/5.0 (Android5.1.1) AppleWebKit/537. 36 (KHTML, like Gecko) Chrome/41. 0.2225.0 Safari/537. 36").ignoreContentType(true);
 
     }
     public static String getID(String realurl){
@@ -41,7 +49,8 @@ public class Util {
             String[] mid =  rest[1].split("/");
              id=mid[0];
         }else {
-            System.out.println("not found");
+            //System.out.println("not found");
+            LOGGER.info("videoid not found");
         }
 
        return id;
@@ -53,7 +62,8 @@ public class Util {
         try {
             r=c.followRedirects(false).timeout(10000).execute().header("location");
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            LOGGER.error(e.getStackTrace().toString());
         }
         return  r;
     }
@@ -68,6 +78,7 @@ public class Util {
         //获取响应
         Connection.Response response = c.data(data).method(Connection.Method.POST).ignoreContentType(true).execute();
         String a=response.body();
+
         return "";
     }
 

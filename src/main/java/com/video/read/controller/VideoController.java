@@ -1,6 +1,7 @@
 package com.video.read.controller;
 
 
+import ch.qos.logback.classic.util.LoggerNameUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.video.read.util.Util;
@@ -11,8 +12,11 @@ import it.sauronsoftware.jave.EncodingAttributes;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletResponse;
@@ -23,10 +27,14 @@ import java.util.regex.Pattern;
 
 @Controller
 public class VideoController {
+    private static final Logger LOGGER= LoggerFactory.getLogger(VideoController.class);
+
     @RequestMapping("/get")
     @ResponseBody
-    public JSON get(String url, int type, String m){
+    public JSON get(@RequestParam(name = "url",defaultValue = "")String url, @RequestParam(name = "type",defaultValue = "0") String type, String m){
+        LOGGER.info("抖音url:"+url);
         String urls="";
+
         JSONObject r=new JSONObject();
         if (url!=null&&!url.isEmpty()) {
 
@@ -42,14 +50,14 @@ public class VideoController {
                 Map<String, Object> video = (Map<String, Object>) re.get("video");
                 String vid=video.get("vid").toString().trim();
                 r.put("desc",vid);
-                if (type==0) {
+                if (type.equals("0")) {
 
                     Map<String, Object> play_addr = (Map<String, Object>) video.get("play_addr");
                     urls = ((List<String>) play_addr.get("url_list")).get(0);
                     if (m!=null&&m.equals("0")){
                         urls=urls.replace("playwm","play");
                     }
-                }else if (type==1){
+                }else if (type.equals("1")){
                     Map<String, Object> music = (Map<String, Object>) re.get("music");
                     Map<String, Object> play_url = (Map<String, Object>) music.get("play_url");
                     List<String> object=(List<String>)play_url.get("url_list");
@@ -64,6 +72,8 @@ public class VideoController {
             }
 
 
+        }else{
+            LOGGER.info("url is empty");
         }
         return r;
     }
@@ -98,7 +108,8 @@ public class VideoController {
             try {
                 response = client.newCall(request).execute();
             } catch (IOException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
+                LOGGER.error(e.getStackTrace().toString());
             }
             //创建接收文件的流
             //File file = new File( "./a.mp4");
@@ -139,7 +150,8 @@ public class VideoController {
                         i = bis.read(buff);
                     }
                 } catch (EncoderException e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
+                    LOGGER.error(e.getStackTrace().toString());
                 }
 
             } else {
@@ -149,7 +161,9 @@ public class VideoController {
                     //res.addHeader("Content-Disposition", "attachment;fileName=" + java.net.URLEncoder.encode(desc+pre, "UTF-8"));
                     outputStream = res.getOutputStream();
                 } catch (IOException e) {
-                    e.printStackTrace();
+
+                    //e.printStackTrace();
+                    LOGGER.error(e.getStackTrace().toString());
                 }
                 //将responseBody截取并写入到指定文件路径下
                 outputStream.write(response.body().bytes());
