@@ -19,8 +19,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -180,5 +186,140 @@ public class VideoController {
         return "index";
     }
 
+    @RequestMapping("/getvideobynio")
+    @ResponseBody
+    public void getvideoByNio(String url,String desc,HttpServletResponse res,String type) throws IOException {
 
+        if (desc==null||desc.isEmpty()){
+            desc="dy";
+        }
+        String regx="((https?):\\/\\/|)[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]";
+        if (url!=null&&url.matches(regx)) {
+            String pre = "";
+            if (type != null) {
+                pre = ".mp3";
+            } else {
+                pre = ".mp4";
+            }
+            res.addHeader("Content-Disposition", "attachment;fileName=" + java.net.URLEncoder.encode(desc + pre, "UTF-8"));
+
+            OkHttpClient client = new OkHttpClient();
+            Request request = new Request.Builder()
+                    .url(url)
+                    .get()
+                    .build();
+            Response response = null;
+            WritableByteChannel writableByteChannel =null;
+            ReadableByteChannel readableByteChannel=null;
+
+            try {
+                response = client.newCall(request).execute();
+            } catch (IOException e) {
+                //e.printStackTrace();
+                LOGGER.error(e.getStackTrace().toString());
+            }
+            ByteBuffer buf = ByteBuffer.allocate(1024);
+
+            OutputStream outputStream = null;
+            if (type != null && type.equals("t")) {
+
+                //创建接收文件的流
+                File file = new File(desc + ".mp4");
+                //FileChannel fileChannel=file.get
+                outputStream = new FileOutputStream(file);
+                 writableByteChannel = Channels.newChannel(outputStream);
+                 readableByteChannel=Channels.newChannel(response.body().byteStream());
+                while (readableByteChannel.read(buf)!=-1){
+                    buf.flip();
+                    while (buf.hasRemaining()){
+                        writableByteChannel.write(buf);
+                    }
+
+                    buf.clear();
+                }
+                outputStream.flush();
+                readableByteChannel.close();
+                writableByteChannel.close();
+                //File source = new File(desc+pre);
+                File target = new File(desc + pre);
+                AudioAttributes audio = new AudioAttributes();
+                audio.setCodec("libmp3lame");
+                audio.setBitRate(new Integer(128000));
+                audio.setChannels(new Integer(2));
+                audio.setSamplingRate(new Integer(44100));
+                EncodingAttributes attrs = new EncodingAttributes();
+                attrs.setFormat("mp3");
+                attrs.setAudioAttributes(audio);
+                Encoder encoder = new Encoder();
+                try {
+                    encoder.encode(file, target, attrs);
+                    outputStream = res.getOutputStream();
+                    writableByteChannel = Channels.newChannel(outputStream);
+                    readableByteChannel=Channels.newChannel(new FileInputStream(target));
+                    while (readableByteChannel.read(buf)!=-1){
+                        buf.flip();
+                        while (buf.hasRemaining()){
+                            writableByteChannel.write(buf);
+                        }
+
+                        buf.clear();
+                    }
+                    //buf.put(bytes);
+                    //buf.flip();
+                    //writableByteChannel.write(buf);
+                    outputStream.flush();
+                    readableByteChannel.close();
+                    writableByteChannel.close();
+
+                } catch (EncoderException e) {
+
+                    LOGGER.error(e.getStackTrace().toString());
+                }
+
+            } else {
+                try {
+
+                    res.setContentType("application/force-download");// 设置强制下载不打开
+                    //byte[] bytes=response.body().bytes();
+
+
+                    //for (int offset=0;offset<bytes.length;offset++){
+
+                    //}
+
+                    outputStream = res.getOutputStream();
+                   // ServletOutputStream outputStream1=res.getOutputStream();
+//FileOutputStream fileOutputStream=new FileOutputStream(outputStream)
+                    //FileChannel fileChannel=outputStream.
+                     writableByteChannel = Channels.newChannel(outputStream);
+                     readableByteChannel=Channels.newChannel(response.body().byteStream());
+                    //int len=readableByteChannel.read(buf);
+                    while (readableByteChannel.read(buf)!=-1){
+                        buf.flip();
+                        while (buf.hasRemaining()){
+                            writableByteChannel.write(buf);
+                        }
+
+                        buf.clear();
+                    }
+                    //buf.put(bytes);
+                    //buf.flip();
+                    //writableByteChannel.write(buf);
+                    outputStream.flush();
+                    readableByteChannel.close();
+                    writableByteChannel.close();
+
+                } catch (IOException e) {
+
+
+                    LOGGER.error(e.getStackTrace().toString());
+                }
+
+                //outputStream.write(response.body().bytes());
+
+
+            }
+
+        }
+    }
 }

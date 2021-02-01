@@ -43,7 +43,7 @@
                    success:function (result) {
                        console.log(result.url)
                        //$("#s").attr("href",result);
-                       var html="&nbsp;&nbsp;&nbsp;<a href='/getvideo?url="+result.url+"&desc="+result.desc+"'>下载</a>&nbsp;&nbsp;&nbsp;<a href='/getvideo?url="+result.url+"&desc="+result.desc+"&type=t'>视频转MP3音频</a>"
+                       var html="&nbsp;&nbsp;&nbsp;<a href='/getvideobynio?url="+result.url+"&desc="+result.desc+"'>下载</a>&nbsp;&nbsp;&nbsp;<a href='/getvideobynio?url="+result.url+"&desc="+result.desc+"&type=t'>视频转MP3音频</a>"
                         $("#s").text(result.url);
                         $("#s").append(html);
                         //$("#s").bind("click",function () {
@@ -78,7 +78,7 @@
                 data:{url:u,type:1},
                 success:function (result) {
                     //$("#s").attr("href",result);
-                    var html="&nbsp;&nbsp;&nbsp;<a href='/getvideo?url="+result.url+"&desc="+result.desc+"&type=m'>下载</a>"
+                    var html="&nbsp;&nbsp;&nbsp;<a href='/getvideobynio?url="+result.url+"&desc="+result.desc+"&type=m'>下载</a>"
                     $("#m").text(result.url);
                     if(result.url!=""){
                         $("#m").append(html);
@@ -98,7 +98,7 @@
                 data:{url:rurl,type:0,m:0},
                 success:function (result) {
                     //$("#s").attr("href",result);
-                    var html="&nbsp;&nbsp;&nbsp;<a href='/getvideo?url="+result.url+"&desc="+result.desc+"'>下载</a>&nbsp;&nbsp;&nbsp;<a href='/getvideo?url="+result.url+"&desc="+result.desc+"&type=t'>视频转MP3音频</a>"
+                    var html="&nbsp;&nbsp;&nbsp;<a href='/getvideobynio?url="+result.url+"&desc="+result.desc+"'>下载</a>&nbsp;&nbsp;&nbsp;<a href='/getvideobynio?url="+result.url+"&desc="+result.desc+"&type=t'>视频转MP3音频</a>"
                     $("#w").text(result.url);
                     $("#w").append(html);
                 }
