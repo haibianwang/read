@@ -268,8 +268,8 @@ public class VideoController {
                     //buf.flip();
                     //writableByteChannel.write(buf);
                     outputStream.flush();
-                    readableByteChannel.close();
-                    writableByteChannel.close();
+                   // readableByteChannel.close();
+                    //writableByteChannel.close();
 
                 } catch (EncoderException e) {
 
